@@ -29,9 +29,21 @@ const resolvers = {
         const token = signToken(user);
         return { token, user };
     },
-    saveBook: async (parent, { thoughtId }) => {
-      return Thought.findOneAndDelete({ _id: thoughtId });
-
+    saveBook: async (parent, { userId, book }) => {
+      return User.findOneAndUpdate(
+        {_id: userId},
+        {
+          $addToSet: { savedBooks: book }
+        },
+        { new: true }
+      )
+    },
+    removeBook: async (parent, { userId, book }) => {
+      return Profile.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { savedBooks: book } },
+        { new: true }
+      )
     },
   },
 };
