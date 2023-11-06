@@ -11,6 +11,7 @@ import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
+import { useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import {GET_ME} from '../utils/queries';
 import{REMOVE_BOOK} from '../utils/mutations'
@@ -65,14 +66,13 @@ const SavedBooks = () => {
       // const response = await deleteBook(bookId, token);
       
       const response = await removeBook({
-        variable: {bookId}
+        variable: bookId
       })
 
       if (!response.ok) {
         throw new Error('something went wrong!');
       }
-
-      // const updatedUser = await response.json();
+      const updatedUser = await response.json();
       // setUserData(updatedUser);
 
       // upon success, remove book's id from localStorage
