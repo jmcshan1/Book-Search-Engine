@@ -39,10 +39,11 @@ module.exports = {
   // },
   authMiddleware: function ({ req }) {
     let token = req.body.token || req.query.token || req.headers.authorization;
-
     if (req.headers.authorization) {
       token = token.split(' ').pop().trim();
     }
+    
+    // console.log(req.headers)
 
     if (!token) {
       return req;
@@ -54,6 +55,8 @@ module.exports = {
     } catch {
       console.log('Invalid token');
     }
+
+
 
     return req;
   },

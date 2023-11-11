@@ -1,10 +1,15 @@
-const { User, Book } = require("../models");
+const { User } = require("../models");
 const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    me: async () => {
-      return User.findOne({});
+    me: async (parent, args, context) => {
+      console.log(context.user)
+      if(context.user){
+        return User.findOne({ _id: context.user._id });
+      }
+        
+      throw AuthenticationError;
     },
   },
   Mutation: {
@@ -37,13 +42,15 @@ const resolvers = {
             savedBooks: book
           }
         },
-        { new: true }
+        { new: true,
+          runValidators: true 
+        }
       )
     },
-    removeBook: async (parent, { userId, book }) => {
-      return Profile.findOneAndUpdate(
-        { _id: userId },
-        { $pull: { savedBooks: book } },
+    removeBook: async (parent, {bookId}, context) => {
+      return User.findOneAndUpdate(
+        { _id: context.user._id },
+        { $pull: { savedBooks: {bookId: bookId} } },
         { new: true }
       )
     },

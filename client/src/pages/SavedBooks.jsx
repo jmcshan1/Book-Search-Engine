@@ -11,23 +11,40 @@ import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
-import { useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@apollo/client';
-import {GET_ME} from '../utils/queries';
-import{REMOVE_BOOK} from '../utils/mutations'
+import { useMutation, useQuery} from '@apollo/client';
+import {REMOVE_BOOK} from '../utils/mutations';
+import {GET_ME} from '../utils/queries'
 
 const SavedBooks = () => {
+  const [UserData, setUserData] = useState({});
+  const { loading, data } = useQuery(GET_ME);
+  
 
-  const { userId } = useParams();
-  const { loading , userData } = useQuery(GET_ME, {
-    variables: {userId}
+  const userData = data?.me || data?.profile || {};
+  console.log(userData);
+
+  // setUserData(userData)
+
+  const [removeBook, { error }] = useMutation (REMOVE_BOOK, {
+    refetchQueries: [
+      GET_ME,
+      'me'
+    ]
   })
 
-  const [removeBook, { error }] = useMutation(REMOVE_BOOK);
-  // const [userData, setUserData] = useState({});
-
+  
+  // console.log(userData)
   // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
+  // const userDataLength = Object.keys(userData).length;
+
+  // try {
+  //   const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+  // } catch (error) {
+    
+  // }
+  
+  // console.log(token)
 
   // useEffect(() => {
   //   const getUserData = async () => {
@@ -39,6 +56,8 @@ const SavedBooks = () => {
   //       }
 
   //       const response = await getMe(token);
+
+  //       console.log(response)
 
   //       if (!response.ok) {
   //         throw new Error('something went wrong!');
@@ -54,6 +73,7 @@ const SavedBooks = () => {
   //   getUserData();
   // }, [userDataLength]);
 
+
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -63,20 +83,18 @@ const SavedBooks = () => {
     }
 
     try {
-      // const response = await deleteBook(bookId, token);
-      
-      const response = await removeBook({
-        variable: bookId
-      })
+      // const userId = userData._id
+      const updatedUser = await removeBook({
+        variables: {bookId}
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-      const updatedUser = await response.json();
-      // setUserData(updatedUser);
+      // if (!response.ok) {
+      //   throw new Error('something went wrong!');
+      // }
 
+      console.log(updatedUser);
+      setUserData(updatedUser);
       // upon success, remove book's id from localStorage
-
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
@@ -90,7 +108,7 @@ const SavedBooks = () => {
 
   return (
     <>
-      <div fluid className="text-light bg-dark p-5">
+      <div fluid="true" className="text-light bg-dark p-5">
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
