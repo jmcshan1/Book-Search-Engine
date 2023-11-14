@@ -43,7 +43,7 @@ module.exports = {
       token = token.split(' ').pop().trim();
     }
     
-    // console.log(req.headers)
+    console.log(req)
 
     if (!token) {
       return req;
